@@ -1,7 +1,8 @@
-const DISCORD_WEBHOOK_URL = '<your discord webhook url>';
 // GitHubのユーザー名とDiscordのUserIDの対応が書かれたスプレッドシートを指定
-const SPREADSHEET_ID = '<your spreadsheet id>';
-const SHEET_NAME = '<your sheet name>';
+const SPREADSHEET_ID = PropertiesService.getScriptProperties().getProperty("SPREADSHEET_ID");
+const SHEET_NAME = PropertiesService.getScriptProperties().getProperty("SHEET_NAME");
+// Discordのwebhook URLを指定
+const DISCORD_WEBHOOK_URL = PropertiesService.getScriptProperties().getProperty("DISCORD_WEBHOOK_URL");
 
 // Webhookを受け取る
 function doPost(e) {
