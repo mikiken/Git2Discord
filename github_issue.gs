@@ -67,7 +67,6 @@ function formatJsonForDiscord(jsonObject) {
     let embeds_url = (function () {
         switch (event_type) {
             case 'issues':
-            case 'issue-close':
                 return `${issue_url}`;
             case 'issue_comment':
                 let comment_id = jsonObject.comment.url.split('/').pop();
