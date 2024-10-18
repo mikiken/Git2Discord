@@ -7,7 +7,10 @@ const DISCORD_WEBHOOK_URL = PropertiesService.getScriptProperties().getProperty(
 // Webhookを受け取る
 function doPost(e) {
     e = JSON.parse(e.postData.getDataAsString());
-    postWebhook(DISCORD_WEBHOOK_URL, formatJsonForDiscord(e));
+    payload = formatJsonForDiscord(e);
+    if (payload != null) {
+        postWebhook(DISCORD_WEBHOOK_URL, payload);
+    }
 }
 
 // GitHubからのwebhookのJSONをDiscord用に整形する
@@ -31,7 +34,13 @@ function formatJsonForDiscord(jsonObject) {
     let message = (function () {
         switch (event_type) {
             case 'issues':
-                return `Issue [#${issue_number}](${issue_url}) ${action}`;
+                if (action.includes('opened') ||
+                    action.includes('closed') ||
+                    action.includes('reopened') ||
+                    action.includes('deleted'))
+                    return `Issue [#${issue_number}](${issue_url}) ${action}`;
+                else
+                    return null;
             case 'issue_comment':
                 if (action.includes('created'))
                     return `New comment on issue [#${issue_number}](${issue_url})`;
@@ -92,24 +101,27 @@ function formatJsonForDiscord(jsonObject) {
         }
     })();
 
-    return {
-        username: "GitHub",
-        avatar_url: "https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png",
-        content: `${message} by ${author_with_link}`,
-        embeds: [
-            {
-                title: `${embeds_title}`,
-                description: `${embeds_description}`,
-                url: `${embeds_url}`,
-                timestamp: `${jsonObject.issue.updated_at}`,
-                color: embeds_color,
-                footer: {
-                    text: `${jsonObject.repository.full_name}`,
-                    icon_url: "https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png"
-                },
-            }
-        ]
-    };
+    if (message == null) {
+        return null;
+    } else
+        return {
+            username: "GitHub",
+            avatar_url: "https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png",
+            content: `${message} by ${author_with_link}`,
+            embeds: [
+                {
+                    title: `${embeds_title}`,
+                    description: `${embeds_description}`,
+                    url: `${embeds_url}`,
+                    timestamp: `${jsonObject.issue.updated_at}`,
+                    color: embeds_color,
+                    footer: {
+                        text: `${jsonObject.repository.full_name}`,
+                        icon_url: "https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png"
+                    },
+                }
+            ]
+        };
 }
 
 // GitHubのメンションをDiscordのメンションに置換する
